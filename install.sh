@@ -46,7 +46,7 @@ show_header() {
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}🔥  CODINGBOYZ PRESENTS  ${WHITE}🔥${NC}                  ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
-    echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}⚡ PORT FORWARDING MASTER TOOL v1 ⚡${NC}                 ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}⚡ PORT FORWARDING MASTER TOOL v1 ${NC}                 ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}              ${BLACK}Power by FXTUN - Professional Tunneling${NC}            ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
@@ -63,7 +63,7 @@ show_menu() {
     echo -e "  ${WHITE}├─────────────────────────────────────────────────┤${NC}"
     echo -e "  ${WHITE}│${NC}                                                 ${WHITE}│${NC}"
     echo -e "  ${WHITE}│${NC}    ${WHITE}[${BLACK}1${WHITE}]${NC}  ${BLACK}Install FXTUN${NC}                      ${WHITE}│${NC}"
-    echo -e "  ${WHITE}│${NC}    ${WHITE}[${BLACK}2${WHITE}]${NC}  ${BLACK}Authenticate (API Key)${NC}             ${WHITE}│${NC}"
+    echo -e "  ${WHITE}│${NC}    ${WHITE}[${BLACK}2${WHITE}]${NC}  ${BLACK}Authenticate (API Token)${NC}           ${WHITE}│${NC}"
     echo -e "  ${WHITE}│${NC}    ${WHITE}[${BLACK}3${WHITE}]${NC}  ${BLACK}Start Tunneling / Forwarding${NC}       ${WHITE}│${NC}"
     echo -e "  ${WHITE}│${NC}    ${WHITE}[${BLACK}4${WHITE}]${NC}  ${BLACK}Exit${NC}                             ${WHITE}│${NC}"
     echo -e "  ${WHITE}│${NC}                                                 ${WHITE}│${NC}"
@@ -99,10 +99,11 @@ install_fxtun() {
             echo -e "${WHITE}► Version:${NC} $(fxtunnel version 2>/dev/null || echo 'Installed')"
             echo -e "${WHITE}► Binary:${NC} ~/.local/bin/fxtunnel"
             echo -e "${WHITE}► Symlink:${NC} ~/.local/bin/fxtun"
-            echo -e "\n${WHITE}► Usage examples:${NC}"
-            echo -e "  ${DIM}fxtunnel http 8080${NC}"
-            echo -e "  ${DIM}fxtunnel tcp 22${NC}"
-            echo -e "  ${DIM}fxtunnel udp 53${NC}"
+            echo -e "\n${WHITE}► Correct usage examples:${NC}"
+            echo -e "  ${DIM}fxtunnel --token YOUR_TOKEN http 8080${NC}"
+            echo -e "  ${DIM}fxtunnel --token YOUR_TOKEN tcp 22${NC}"
+            echo -e "  ${DIM}fxtunnel --token YOUR_TOKEN udp 53${NC}"
+            echo -e "  ${DIM}fxtunnel --token YOUR_TOKEN http 8080 --subdomain api${NC}"
         fi
     else
         echo -e "\n${BOLD}${RED}❌ INSTALLATION FAILED!${NC}"
@@ -118,22 +119,24 @@ authenticate() {
     clear
     show_header
     echo -e "\n${BOLD}${BLACK}╔═══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${BLACK}║           🔑 AUTHENTICATION WITH API KEY 🔑                      ║${NC}"
+    echo -e "${BOLD}${BLACK}║           🔑 AUTHENTICATION WITH API TOKEN 🔑                   ║${NC}"
     echo -e "${BOLD}${BLACK}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
     
-    echo -e "${WHITE}► Enter your API Key:${NC}"
-    echo -e "${DIM}${WHITE}  (Get from https://fxtun.ru)${NC}\n"
-    echo -e "${BOLD}${BLACK}┌─[ API Key ]${NC}"
+    echo -e "${WHITE}► Enter your Authentication Token:${NC}"
+    echo -e "${DIM}${WHITE}  (Get from https://fxtun.ru/dashboard)${NC}\n"
+    echo -e "${BOLD}${BLACK}┌─[ Auth Token ]${NC}"
     echo -e "${BOLD}${BLACK}└──╼ ${NC}\c"
     read -r key
     
     if [ ${#key} -gt 10 ]; then
         echo "$key" > "$API_KEY_FILE"
         echo -e "\n${BOLD}${GREEN}✅ AUTHENTICATION SUCCESSFUL!${NC}"
-        echo -e "${WHITE}► API Key saved:${NC} $API_KEY_FILE"
+        echo -e "${WHITE}► Token saved:${NC} $API_KEY_FILE"
+        echo -e "\n${DIM}${WHITE}► Now you can use:${NC}"
+        echo -e "  ${DIM}fxtunnel --token $key http 8080${NC}"
     else
-        echo -e "\n${BOLD}${RED}❌ INVALID API KEY!${NC}"
-        echo -e "${WHITE}► Please enter a valid API key${NC}"
+        echo -e "\n${BOLD}${RED}❌ INVALID TOKEN!${NC}"
+        echo -e "${WHITE}► Please enter a valid authentication token${NC}"
     fi
     
     return_home
@@ -165,13 +168,9 @@ start_tunneling() {
     echo -e "${BOLD}${BLACK}║           🚀 START TUNNELING / FORWARDING 🚀                    ║${NC}"
     echo -e "${BOLD}${BLACK}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
     
-    # Show examples
-    echo -e "${DIM}${WHITE}► Command format:${NC} ${BOLD}$CMD <protocol> <port>${NC}"
-    echo -e "${DIM}${WHITE}► Examples:${NC}"
-    echo -e "  ${DIM}$CMD http 8080${NC}"
-    echo -e "  ${DIM}$CMD tcp 22${NC}"
-    echo -e "  ${DIM}$CMD udp 53${NC}"
-    echo -e "  ${DIM}$CMD http 3000 --subdomain api${NC}\n"
+    # Show correct format
+    echo -e "${DIM}${WHITE}► Correct format:${NC} ${BOLD}$CMD --token YOUR_TOKEN <protocol> <port>${NC}"
+    echo -e "${DIM}${WHITE}► Your token:${NC} ${BOLD}${BLACK}${API_KEY:0:10}...${NC}\n"
     
     # Protocol selection
     echo -e "${BOLD}${WHITE}┌─────────────────────────────────────────────────────┐${NC}"
@@ -216,6 +215,7 @@ start_tunneling() {
     SUBDOMAIN=""
     if [ "$proto" = "1" ]; then
         echo -e "\n${WHITE}► Enter subdomain (optional, press Enter to skip):${NC}"
+        echo -e "${DIM}${WHITE}  (e.g., api, test, myapp)${NC}"
         echo -e "${BOLD}${BLACK}┌─[ Subdomain ]${NC}"
         echo -e "${BOLD}${BLACK}└──╼ ${NC}\c"
         read -r subdomain_input
@@ -245,11 +245,11 @@ start_tunneling() {
         ;;
     esac
     
-    # Build the command
+    # Build the CORRECT command - token FIRST
     if [ -n "$SUBDOMAIN" ]; then
-        FULL_CMD="$CMD $PROTO_CMD $port $SUBDOMAIN"
+        FULL_CMD="$CMD --token $API_KEY $PROTO_CMD $port $SUBDOMAIN"
     else
-        FULL_CMD="$CMD $PROTO_CMD $port"
+        FULL_CMD="$CMD --token $API_KEY $PROTO_CMD $port"
     fi
     
     # Show summary
@@ -259,11 +259,8 @@ start_tunneling() {
     echo -e "${WHITE}► Protocol:${NC}     ${BOLD}${BLACK}$PROTO_NAME${NC}"
     echo -e "${WHITE}► Port:${NC}         ${BOLD}${BLACK}$port${NC}"
     [ -n "$subdomain_input" ] && echo -e "${WHITE}► Subdomain:${NC}   ${BOLD}${BLACK}$subdomain_input${NC}"
-    echo -e "${WHITE}► API Key:${NC}      ${BOLD}${BLACK}${API_KEY:0:10}...${NC}"
+    echo -e "${WHITE}► Token:${NC}        ${BOLD}${BLACK}${API_KEY:0:10}...${NC}"
     echo -e "${WHITE}► Command:${NC}      ${BOLD}${BLACK}$FULL_CMD${NC}\n"
-    
-    # Export API key for fxtunnel
-    export FXTUNNEL_API_KEY="$API_KEY"
     
     # Start tunneling with CORRECT syntax
     echo -e "${BOLD}${GREEN}🚀 STARTING TUNNEL...${NC}\n"
@@ -273,14 +270,14 @@ start_tunneling() {
     # Execute the command
     eval "$FULL_CMD"
     
-    # If command fails, try with API key flag
+    # If command fails, show help
     if [ $? -ne 0 ]; then
-        echo -e "\n${YELLOW}► Trying with API key flag...${NC}\n"
-        if [ -n "$SUBDOMAIN" ]; then
-            eval "$CMD $PROTO_CMD $port $SUBDOMAIN --key $API_KEY"
-        else
-            eval "$CMD $PROTO_CMD $port --key $API_KEY"
-        fi
+        echo -e "\n${RED}❌ Tunnel failed to start!${NC}"
+        echo -e "${WHITE}► Check your token:${NC} $API_KEY_FILE"
+        echo -e "${WHITE}► Try running manually:${NC}"
+        echo -e "  ${DIM}$FULL_CMD${NC}"
+        echo -e "${WHITE}► Or check help:${NC}"
+        echo -e "  ${DIM}$CMD --help${NC}"
     fi
     
     return_home
