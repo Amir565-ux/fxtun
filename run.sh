@@ -39,7 +39,7 @@ echo -e "\n\n${BLUE}╔═══════════════════
 echo -e "${BLUE}║${NC}                                                                            ${BLUE}║${NC}"
 echo -e "${BLUE}║${NC}           ${BOLD}${PURPLE}🔥  ${CYAN}CODINGBOYZ PRESENTS  ${PURPLE}🔥${NC}                  ${BLUE}║${NC}"
 echo -e "${BLUE}║${NC}                                                                            ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}           ${BOLD}${GREEN}⚡ PORT FORWARDING MASTER TOOL ⚡${NC}                 ${BLUE}║${NC}"
+echo -e "${BLUE}║${NC}           ${BOLD}${GREEN}⚡ PORT FORWARDING MASTER TOOL g ⚡${NC}                 ${BLUE}║${NC}"
 echo -e "${BLUE}║${NC}                                                                            ${BLUE}║${NC}"
 echo -e "${BLUE}║${NC}              ${YELLOW}Power by FXTUN - Professional Tunneling${NC}            ${BLUE}║${NC}"
 echo -e "${BLUE}║${NC}                                                                            ${BLUE}║${NC}"
