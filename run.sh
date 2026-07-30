@@ -1,179 +1,204 @@
 #!/bin/bash
 
-# Colors
+# Colors - White Theme
+WHITE='\033[1;37m'
+BLACK='\033[0;30m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[1;36m'
+BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m'
+BG_WHITE='\033[47m'
+BG_BLACK='\033[40m'
 
-# Check fxtun version and commands
+# Global variables
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+API_KEY_FILE="$HOME/.fxtun_key"
+
+# Function to check fxtun installation
 check_fxtun() {
     if command -v fxtunnel &> /dev/null; then
-        # Check available commands
-        if fxtunnel --help 2>&1 | grep -q "tunnel"; then
-            CMD="fxtunnel"
-            MODE="tunnel"
-        elif fxtunnel --help 2>&1 | grep -q "start"; then
-            CMD="fxtunnel"
-            MODE="start"
-        else
-            CMD="fxtunnel"
-            MODE="unknown"
-        fi
+        CMD="fxtunnel"
+        return 0
     elif command -v fxtun &> /dev/null; then
         CMD="fxtun"
-        MODE="tunnel"
+        return 0
     else
         CMD=""
-        MODE=""
+        return 1
     fi
 }
 
-# Header with animation effect
-clear
-echo -e "\n\n${BLUE}╔════════════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║${NC}                                                                            ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}           ${BOLD}${PURPLE}🔥  ${CYAN}CODINGBOYZ PRESENTS  ${PURPLE}🔥${NC}                  ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}                                                                            ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}           ${BOLD}${GREEN}⚡ PORT FORWARDING MASTER TOOL g ⚡${NC}                 ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}                                                                            ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}              ${YELLOW}Power by FXTUN - Professional Tunneling${NC}            ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}                                                                            ${BLUE}║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════════════════════════════════════╝${NC}"
+# Function to get API key
+get_api_key() {
+    if [ -f "$API_KEY_FILE" ]; then
+        cat "$API_KEY_FILE"
+    else
+        echo ""
+    fi
+}
 
-echo -e "\n\n${BOLD}${YELLOW}           📺  SUBSCRIBE TO CODINGBOYZ  📺${NC}\n"
-echo -e "        ${CYAN}► YouTube: CodingBoyz ◄${NC}\n\n"
+# Function to show header
+show_header() {
+    clear
+    echo -e "\n${WHITE}╔════════════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}🔥  CODINGBOYZ PRESENTS  ${WHITE}🔥${NC}                  ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}⚡ PORT FORWARDING MASTER TOOL ⚡${NC}                 ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}              ${BLACK}Power by FXTUN - Professional Tunneling${NC}            ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
+    echo -e "${WHITE}╚════════════════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "\n${BOLD}${BLACK}           📺  SUBSCRIBE TO CODINGBOYZ  📺${NC}"
+    echo -e "        ${WHITE}► YouTube: CodingBoyz ◄${NC}\n"
+    echo -e "${WHITE}════════════════════════════════════════════════════════════════════════${NC}\n"
+}
 
-echo -e "${BLUE}════════════════════════════════════════════════════════════════════════${NC}\n"
+# Function to show menu
+show_menu() {
+    echo -e "  ${WHITE}┌─────────────────────────────────────────────────┐${NC}"
+    echo -e "  ${WHITE}│${NC}     ${BOLD}${BLACK}SELECT YOUR OPTION${NC}                   ${WHITE}│${NC}"
+    echo -e "  ${WHITE}├─────────────────────────────────────────────────┤${NC}"
+    echo -e "  ${WHITE}│${NC}                                                 ${WHITE}│${NC}"
+    echo -e "  ${WHITE}│${NC}    ${WHITE}[${BLACK}1${WHITE}]${NC}  ${BLACK}Install FXTUN${NC}                      ${WHITE}│${NC}"
+    echo -e "  ${WHITE}│${NC}    ${WHITE}[${BLACK}2${WHITE}]${NC}  ${BLACK}Authenticate (API Key)${NC}             ${WHITE}│${NC}"
+    echo -e "  ${WHITE}│${NC}    ${WHITE}[${BLACK}3${WHITE}]${NC}  ${BLACK}Start Tunneling / Forwarding${NC}       ${WHITE}│${NC}"
+    echo -e "  ${WHITE}│${NC}    ${WHITE}[${BLACK}4${WHITE}]${NC}  ${BLACK}Exit${NC}                             ${WHITE}│${NC}"
+    echo -e "  ${WHITE}│${NC}                                                 ${WHITE}│${NC}"
+    echo -e "  ${WHITE}└─────────────────────────────────────────────────┘${NC}\n"
+    echo -e "${WHITE}════════════════════════════════════════════════════════════════════════${NC}\n"
+    echo -e "${BOLD}${BLACK}┌─[ Enter Your Choice ]${NC}"
+    echo -e "${BOLD}${BLACK}└──╼ ${NC}\c"
+}
 
-# Menu with better design
-echo -e "  ${BOLD}${GREEN}┌─────────────────────────────────────────────────┐${NC}"
-echo -e "  ${BOLD}${GREEN}│${NC}     ${BOLD}${YELLOW}SELECT YOUR OPTION${NC}                   ${BOLD}${GREEN}│${NC}"
-echo -e "  ${BOLD}${GREEN}├─────────────────────────────────────────────────┤${NC}"
-echo -e "  ${BOLD}${GREEN}│${NC}                                                 ${BOLD}${GREEN}│${NC}"
-echo -e "  ${BOLD}${GREEN}│${NC}    ${BLUE}[${YELLOW}1${BLUE}]${NC}  ${GREEN}Install FXTUN${NC}                      ${BOLD}${GREEN}│${NC}"
-echo -e "  ${BOLD}${GREEN}│${NC}    ${BLUE}[${YELLOW}2${BLUE}]${NC}  ${GREEN}Authenticate (API Key)${NC}             ${BOLD}${GREEN}│${NC}"
-echo -e "  ${BOLD}${GREEN}│${NC}    ${BLUE}[${YELLOW}3${BLUE}]${NC}  ${GREEN}Start Tunneling / Forwarding${NC}       ${BOLD}${GREEN}│${NC}"
-echo -e "  ${BOLD}${GREEN}│${NC}    ${BLUE}[${YELLOW}4${BLUE}]${NC}  ${RED}Exit${NC}                             ${BOLD}${GREEN}│${NC}"
-echo -e "  ${BOLD}${GREEN}│${NC}                                                 ${BOLD}${GREEN}│${NC}"
-echo -e "  ${BOLD}${GREEN}└─────────────────────────────────────────────────┘${NC}\n"
+# Function to return to home
+return_home() {
+    echo -e "\n${DIM}${WHITE}─────────────────────────────────────────────────────────${NC}"
+    echo -e "${WHITE}⏎ Press Enter to return to main menu...${NC}"
+    read -r
+    main
+}
 
-echo -e "${BLUE}════════════════════════════════════════════════════════════════════════${NC}\n"
-echo -e "${BOLD}${GREEN}┌─[ Enter Your Choice ]${NC}"
-echo -e "${BOLD}${GREEN}└──╼ ${NC}\c"
-read opt
-
-case $opt in
-1)
-    echo -e "\n\n${BOLD}${YELLOW}╔═══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${YELLOW}║           📥 INSTALLING FXTUN OFFICIALLY 📥                     ║${NC}"
-    echo -e "${BOLD}${YELLOW}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
+# Function to install fxtun
+install_fxtun() {
+    clear
+    show_header
+    echo -e "\n${BOLD}${BLACK}╔═══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BOLD}${BLACK}║           📥 INSTALLING FXTUN OFFICIALLY 📥                     ║${NC}"
+    echo -e "${BOLD}${BLACK}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
     
-    echo -e "${CYAN}► Downloading from official server...${NC}\n"
-    curl -fsSL https://fxtun.ru/install.sh | sh
+    echo -e "${WHITE}► Downloading from official server...${NC}\n"
     
-    if [ $? -eq 0 ]; then
+    if curl -fsSL https://fxtun.ru/install.sh | sh; then
         export PATH="$HOME/.local/bin:$PATH"
         echo -e "\n${BOLD}${GREEN}✅ FXTUN INSTALLED SUCCESSFULLY!${NC}\n"
         
-        # Show version
         if command -v fxtunnel &> /dev/null; then
-            echo -e "${CYAN}► Version:${NC} $(fxtunnel version 2>/dev/null || echo 'Installed')"
+            echo -e "${WHITE}► Version:${NC} $(fxtunnel version 2>/dev/null || echo 'Installed')"
+            echo -e "${WHITE}► Binary:${NC} ~/.local/bin/fxtunnel"
+            echo -e "${WHITE}► Symlink:${NC} ~/.local/bin/fxtun"
         fi
-        echo -e "\n${BOLD}${GREEN}► Binary Location:${NC} ~/.local/bin/fxtunnel"
-        echo -e "${BOLD}${GREEN}► Symlink:${NC} ~/.local/bin/fxtun"
     else
         echo -e "\n${BOLD}${RED}❌ INSTALLATION FAILED!${NC}"
-        echo -e "${YELLOW}► Try manual install:${NC}"
+        echo -e "${WHITE}► Try manual install:${NC}"
         echo -e "  curl -fsSL https://fxtun.ru/install.sh | sh"
     fi
     
-    echo -e "\n${BOLD}${YELLOW}📺 Subscribe to CodingBoyz!${NC}\n"
-    ;;
+    return_home
+}
+
+# Function to authenticate
+authenticate() {
+    clear
+    show_header
+    echo -e "\n${BOLD}${BLACK}╔═══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BOLD}${BLACK}║           🔑 AUTHENTICATION WITH API KEY 🔑                      ║${NC}"
+    echo -e "${BOLD}${BLACK}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
     
-2)
-    echo -e "\n\n${BOLD}${YELLOW}╔═══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${YELLOW}║           🔑 AUTHENTICATION WITH API KEY 🔑                      ║${NC}"
-    echo -e "${BOLD}${YELLOW}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
-    
-    echo -e "${CYAN}► Enter your API Key:${NC}"
-    echo -e "${YELLOW}  (Get from https://fxtun.ru)${NC}\n"
-    echo -e "${BOLD}${GREEN}┌─[ API Key ]${NC}"
-    echo -e "${BOLD}${GREEN}└──╼ ${NC}\c"
-    read key
+    echo -e "${WHITE}► Enter your API Key:${NC}"
+    echo -e "${DIM}${WHITE}  (Get from https://fxtun.ru)${NC}\n"
+    echo -e "${BOLD}${BLACK}┌─[ API Key ]${NC}"
+    echo -e "${BOLD}${BLACK}└──╼ ${NC}\c"
+    read -r key
     
     if [ ${#key} -gt 10 ]; then
-        echo "$key" > ~/.fxtun_key
+        echo "$key" > "$API_KEY_FILE"
         echo -e "\n${BOLD}${GREEN}✅ AUTHENTICATION SUCCESSFUL!${NC}"
-        echo -e "${CYAN}► API Key saved:${NC} ~/.fxtun_key"
+        echo -e "${WHITE}► API Key saved:${NC} $API_KEY_FILE"
     else
         echo -e "\n${BOLD}${RED}❌ INVALID API KEY!${NC}"
-        echo -e "${YELLOW}► Please enter a valid API key${NC}"
+        echo -e "${WHITE}► Please enter a valid API key${NC}"
     fi
     
-    echo -e "\n${BOLD}${YELLOW}📺 Subscribe to CodingBoyz!${NC}\n"
-    ;;
-    
-3)
-    echo -e "\n\n${BOLD}${YELLOW}╔═══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${YELLOW}║           🚀 START TUNNELING / FORWARDING 🚀                    ║${NC}"
-    echo -e "${BOLD}${YELLOW}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
+    return_home
+}
+
+# Function to start tunneling
+start_tunneling() {
+    clear
+    show_header
     
     # Check authentication
-    if [ ! -f ~/.fxtun_key ]; then
-        echo -e "${BOLD}${RED}❌ AUTHENTICATION REQUIRED!${NC}"
-        echo -e "${YELLOW}► Please authenticate first (Option 2)${NC}\n"
-        exit 1
+    API_KEY=$(get_api_key)
+    if [ -z "$API_KEY" ]; then
+        echo -e "\n${BOLD}${RED}❌ AUTHENTICATION REQUIRED!${NC}"
+        echo -e "${WHITE}► Please authenticate first (Option 2)${NC}\n"
+        return_home
+        return
     fi
     
     # Check installation
-    check_fxtun
-    if [ -z "$CMD" ]; then
-        echo -e "${BOLD}${RED}❌ FXTUN NOT INSTALLED!${NC}"
-        echo -e "${YELLOW}► Please install first (Option 1)${NC}\n"
-        exit 1
+    if ! check_fxtun; then
+        echo -e "\n${BOLD}${RED}❌ FXTUN NOT INSTALLED!${NC}"
+        echo -e "${WHITE}► Please install first (Option 1)${NC}\n"
+        return_home
+        return
     fi
     
-    API_KEY=$(cat ~/.fxtun_key)
+    echo -e "\n${BOLD}${BLACK}╔═══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BOLD}${BLACK}║           🚀 START TUNNELING / FORWARDING 🚀                    ║${NC}"
+    echo -e "${BOLD}${BLACK}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
     
-    # Protocol selection with better UI
-    echo -e "${BOLD}${CYAN}┌─────────────────────────────────────────────────────┐${NC}"
-    echo -e "${BOLD}${CYAN}│           SELECT PROTOCOL TYPE                      │${NC}"
-    echo -e "${BOLD}${CYAN}├─────────────────────────────────────────────────────┤${NC}"
-    echo -e "${BOLD}${CYAN}│                                                     │${NC}"
-    echo -e "${BOLD}${CYAN}│    ${BLUE}[${GREEN}1${BLUE}]${NC}  ${BOLD}TCP${NC}  - Transmission Control Protocol      ${BOLD}${CYAN}│${NC}"
-    echo -e "${BOLD}${CYAN}│    ${BLUE}[${GREEN}2${BLUE}]${NC}  ${BOLD}UDP${NC}  - User Datagram Protocol             ${BOLD}${CYAN}│${NC}"
-    echo -e "${BOLD}${CYAN}│    ${BLUE}[${GREEN}3${BLUE}]${NC}  ${BOLD}HTTPS${NC} - HTTP Secure / SSL/TLS             ${BOLD}${CYAN}│${NC}"
-    echo -e "${BOLD}${CYAN}│                                                     │${NC}"
-    echo -e "${BOLD}${CYAN}└─────────────────────────────────────────────────────┘${NC}\n"
+    # Protocol selection
+    echo -e "${BOLD}${WHITE}┌─────────────────────────────────────────────────────┐${NC}"
+    echo -e "${BOLD}${WHITE}│           SELECT PROTOCOL TYPE                      │${NC}"
+    echo -e "${BOLD}${WHITE}├─────────────────────────────────────────────────────┤${NC}"
+    echo -e "${BOLD}${WHITE}│                                                     │${NC}"
+    echo -e "${BOLD}${WHITE}│    ${WHITE}[${BLACK}1${WHITE}]${NC}  ${BLACK}TCP${NC}  - Transmission Control Protocol      ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│    ${WHITE}[${BLACK}2${WHITE}]${NC}  ${BLACK}UDP${NC}  - User Datagram Protocol             ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│    ${WHITE}[${BLACK}3${WHITE}]${NC}  ${BLACK}HTTPS${NC} - HTTP Secure / SSL/TLS             ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│                                                     │${NC}"
+    echo -e "${BOLD}${WHITE}└─────────────────────────────────────────────────────┘${NC}\n"
     
-    echo -e "${BOLD}${GREEN}┌─[ Select Protocol ]${NC}"
-    echo -e "${BOLD}${GREEN}└──╼ ${NC}\c"
-    read proto
+    echo -e "${BOLD}${BLACK}┌─[ Select Protocol ]${NC}"
+    echo -e "${BOLD}${BLACK}└──╼ ${NC}\c"
+    read -r proto
     
-    # Port input with validation
-    echo -e "\n${BOLD}${CYAN}┌─────────────────────────────────────────────────────┐${NC}"
-    echo -e "${BOLD}${CYAN}│           ENTER PORT NUMBER                          │${NC}"
-    echo -e "${BOLD}${CYAN}├─────────────────────────────────────────────────────┤${NC}"
-    echo -e "${BOLD}${CYAN}│                                                     │${NC}"
-    echo -e "${BOLD}${CYAN}│    ${YELLOW}► Port range: 1-65535${NC}                       ${BOLD}${CYAN}│${NC}"
-    echo -e "${BOLD}${CYAN}│    ${YELLOW}► Common ports: 80, 443, 8080, 8443${NC}          ${BOLD}${CYAN}│${NC}"
-    echo -e "${BOLD}${CYAN}│                                                     │${NC}"
-    echo -e "${BOLD}${CYAN}└─────────────────────────────────────────────────────┘${NC}\n"
+    # Port input
+    echo -e "\n${BOLD}${WHITE}┌─────────────────────────────────────────────────────┐${NC}"
+    echo -e "${BOLD}${WHITE}│           ENTER PORT NUMBER                          │${NC}"
+    echo -e "${BOLD}${WHITE}├─────────────────────────────────────────────────────┤${NC}"
+    echo -e "${BOLD}${WHITE}│                                                     │${NC}"
+    echo -e "${BOLD}${WHITE}│    ${DIM}► Port range: 1-65535${NC}                       ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│    ${DIM}► Common ports: 80, 443, 8080, 8443${NC}          ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│                                                     │${NC}"
+    echo -e "${BOLD}${WHITE}└─────────────────────────────────────────────────────┘${NC}\n"
     
-    echo -e "${BOLD}${GREEN}┌─[ Enter Port Number ]${NC}"
-    echo -e "${BOLD}${GREEN}└──╼ ${NC}\c"
-    read port
+    echo -e "${BOLD}${BLACK}┌─[ Enter Port Number ]${NC}"
+    echo -e "${BOLD}${BLACK}└──╼ ${NC}\c"
+    read -r port
     
     # Validate port
     if ! [[ "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
         echo -e "\n${BOLD}${RED}❌ INVALID PORT!${NC}"
-        echo -e "${YELLOW}► Please enter a number between 1-65535${NC}\n"
-        exit 1
+        echo -e "${WHITE}► Please enter a number between 1-65535${NC}\n"
+        return_home
+        return
     fi
     
     # Protocol name
@@ -181,86 +206,95 @@ case $opt in
     1) PROTO_NAME="TCP" ;;
     2) PROTO_NAME="UDP" ;;
     3) PROTO_NAME="HTTPS" ;;
-    *) PROTO_NAME="UNKNOWN" ;;
+    *) 
+        echo -e "\n${BOLD}${RED}❌ INVALID PROTOCOL!${NC}"
+        return_home
+        return
+        ;;
     esac
     
     # Show summary
-    echo -e "\n${BOLD}${BLUE}╔═══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${BLUE}║           📋 TUNNEL CONFIGURATION SUMMARY 📋                   ║${NC}"
-    echo -e "${BOLD}${BLUE}╚═══════════════════════════════════════════════════════════════╝${NC}"
-    echo -e "${CYAN}► Protocol:${NC}     ${BOLD}${GREEN}$PROTO_NAME${NC}"
-    echo -e "${CYAN}► Port:${NC}         ${BOLD}${GREEN}$port${NC}"
-    echo -e "${CYAN}► API Key:${NC}      ${BOLD}${GREEN}${API_KEY:0:10}...${NC}"
-    echo -e "${CYAN}► Command:${NC}      ${BOLD}${YELLOW}$CMD${NC}\n"
+    echo -e "\n${BOLD}${WHITE}╔═══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BOLD}${WHITE}║           📋 TUNNEL CONFIGURATION SUMMARY 📋                   ║${NC}"
+    echo -e "${BOLD}${WHITE}╚═══════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${WHITE}► Protocol:${NC}     ${BOLD}${BLACK}$PROTO_NAME${NC}"
+    echo -e "${WHITE}► Port:${NC}         ${BOLD}${BLACK}$port${NC}"
+    echo -e "${WHITE}► API Key:${NC}      ${BOLD}${BLACK}${API_KEY:0:10}...${NC}"
+    echo -e "${WHITE}► Command:${NC}      ${BOLD}${BLACK}$CMD${NC}\n"
     
-    # Start tunneling based on command structure
+    # Start tunneling
     echo -e "${BOLD}${GREEN}🚀 STARTING TUNNEL...${NC}\n"
+    echo -e "${DIM}${WHITE}Press Ctrl+C to stop the tunnel${NC}\n"
     
+    # Try different command formats
     case $proto in
     1)
-        # TCP Forwarding
-        echo -e "${BOLD}${YELLOW}► Creating TCP tunnel on port $port...${NC}\n"
-        if [ "$MODE" = "tunnel" ]; then
-            $CMD tunnel tcp --port $port --key $API_KEY
-        elif [ "$MODE" = "start" ]; then
-            $CMD start --port $port --protocol tcp --key $API_KEY
-        else
-            # Try different command formats
-            echo -e "${YELLOW}► Trying alternative command format...${NC}\n"
-            $CMD --port $port --key $API_KEY 2>/dev/null || \
-            $CMD tcp $port $API_KEY 2>/dev/null || \
-            echo -e "${RED}❌ Command not found. Please check fxtun documentation.${NC}"
-        fi
+        # TCP
+        $CMD tunnel tcp --port "$port" --key "$API_KEY" 2>/dev/null || \
+        $CMD tcp --port "$port" --key "$API_KEY" 2>/dev/null || \
+        $CMD --port "$port" --key "$API_KEY" 2>/dev/null || \
+        $CMD tcp "$port" "$API_KEY" 2>/dev/null || \
+        $CMD "$port" "$API_KEY" 2>/dev/null || \
+        echo -e "${RED}❌ Failed to start tunnel. Please check fxtun documentation.${NC}"
         ;;
     2)
-        # UDP Forwarding
-        echo -e "${BOLD}${YELLOW}► Creating UDP tunnel on port $port...${NC}\n"
-        if [ "$MODE" = "tunnel" ]; then
-            $CMD tunnel udp --port $port --key $API_KEY
-        elif [ "$MODE" = "start" ]; then
-            $CMD start --port $port --protocol udp --key $API_KEY
-        else
-            echo -e "${YELLOW}► Trying alternative command format...${NC}\n"
-            $CMD --port $port --key $API_KEY 2>/dev/null || \
-            $CMD udp $port $API_KEY 2>/dev/null || \
-            echo -e "${RED}❌ Command not found. Please check fxtun documentation.${NC}"
-        fi
+        # UDP
+        $CMD tunnel udp --port "$port" --key "$API_KEY" 2>/dev/null || \
+        $CMD udp --port "$port" --key "$API_KEY" 2>/dev/null || \
+        $CMD --port "$port" --key "$API_KEY" 2>/dev/null || \
+        $CMD udp "$port" "$API_KEY" 2>/dev/null || \
+        $CMD "$port" "$API_KEY" 2>/dev/null || \
+        echo -e "${RED}❌ Failed to start tunnel. Please check fxtun documentation.${NC}"
         ;;
     3)
-        # HTTPS Forwarding
-        echo -e "${BOLD}${YELLOW}► Creating HTTPS tunnel on port $port...${NC}\n"
-        if [ "$MODE" = "tunnel" ]; then
-            $CMD tunnel https --port $port --key $API_KEY
-        elif [ "$MODE" = "start" ]; then
-            $CMD start --port $port --protocol https --key $API_KEY
-        else
-            echo -e "${YELLOW}► Trying alternative command format...${NC}\n"
-            $CMD --port $port --key $API_KEY 2>/dev/null || \
-            $CMD https $port $API_KEY 2>/dev/null || \
-            echo -e "${RED}❌ Command not found. Please check fxtun documentation.${NC}"
-        fi
-        ;;
-    *)
-        echo -e "\n${BOLD}${RED}❌ INVALID PROTOCOL SELECTED!${NC}\n"
-        exit 1
+        # HTTPS
+        $CMD tunnel https --port "$port" --key "$API_KEY" 2>/dev/null || \
+        $CMD https --port "$port" --key "$API_KEY" 2>/dev/null || \
+        $CMD --port "$port" --key "$API_KEY" 2>/dev/null || \
+        $CMD https "$port" "$API_KEY" 2>/dev/null || \
+        $CMD "$port" "$API_KEY" 2>/dev/null || \
+        echo -e "${RED}❌ Failed to start tunnel. Please check fxtun documentation.${NC}"
         ;;
     esac
     
-    echo -e "\n${BOLD}${YELLOW}📺 Subscribe to CodingBoyz for more tools!${NC}\n"
-    ;;
-    
-4)
-    echo -e "\n\n${BOLD}${BLUE}╔═══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BOLD}${BLUE}║           👋 THANK YOU FOR USING CODINGBOYZ TOOL 👋             ║${NC}"
-    echo -e "${BOLD}${BLUE}╚═══════════════════════════════════════════════════════════════╝${NC}"
-    echo -e "\n${BOLD}${YELLOW}📺 Don't forget to Subscribe to CodingBoyz!${NC}"
-    echo -e "${CYAN}► YouTube: CodingBoyz${NC}"
-    echo -e "${CYAN}► GitHub: CODINGBOYZ${NC}\n"
-    exit
-    ;;
-    
-*)
-    echo -e "\n\n${BOLD}${RED}❌ INVALID OPTION!${NC}"
-    echo -e "${YELLOW}► Please select 1, 2, 3, or 4${NC}\n"
-    ;;
-esac
+    return_home
+}
+
+# Main function
+main() {
+    while true; do
+        show_header
+        show_menu
+        read -r opt
+        
+        case $opt in
+        1)
+            install_fxtun
+            ;;
+        2)
+            authenticate
+            ;;
+        3)
+            start_tunneling
+            ;;
+        4)
+            clear
+            echo -e "\n${BOLD}${WHITE}╔═══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${BOLD}${WHITE}║           👋 THANK YOU FOR USING CODINGBOYZ TOOL 👋             ║${NC}"
+            echo -e "${BOLD}${WHITE}╚═══════════════════════════════════════════════════════════════╝${NC}"
+            echo -e "\n${BOLD}${BLACK}📺 Don't forget to Subscribe to CodingBoyz!${NC}"
+            echo -e "${WHITE}► YouTube: CodingBoyz${NC}"
+            echo -e "${WHITE}► GitHub: CODINGBOYZ${NC}\n"
+            exit 0
+            ;;
+        *)
+            echo -e "\n${BOLD}${RED}❌ INVALID OPTION!${NC}"
+            echo -e "${WHITE}► Please select 1, 2, 3, or 4${NC}"
+            sleep 2
+            ;;
+        esac
+    done
+}
+
+# Run main function
+main
