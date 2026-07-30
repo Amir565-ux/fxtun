@@ -46,13 +46,13 @@ show_header() {
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}🔥  CODINGBOYZ PRESENTS  ${WHITE}🔥${NC}                  ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
-    echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}⚡ PORT FORWARDING MASTER TOOL v1 ${NC}                 ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}⚡ PORT FORWARDING MASTER TOOL v1⚡ ${NC}                 ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
-    echo -e "${WHITE}║${NC}              ${BLACK}Power by FXTUN - Professional Tunneling${NC}            ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}            ${BLACK}Power by FXTUN - Give Credits To Use Script${NC}            ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
     echo -e "${WHITE}╚════════════════════════════════════════════════════════════════════════╝${NC}"
     echo -e "\n${BOLD}${BLACK}           📺  SUBSCRIBE TO CODINGBOYZ  📺${NC}"
-    echo -e "        ${WHITE}► YouTube: CodingBoyz ◄${NC}\n"
+    echo -e "               ${WHITE}► YouTube: CodingBoyz ◄${NC}\n"
     echo -e "${WHITE}════════════════════════════════════════════════════════════════════════${NC}\n"
 }
 
