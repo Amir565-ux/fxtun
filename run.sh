@@ -12,11 +12,8 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 DIM='\033[2m'
 NC='\033[0m'
-BG_WHITE='\033[47m'
-BG_BLACK='\033[40m'
 
 # Global variables
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_KEY_FILE="$HOME/.fxtun_key"
 
 # Function to check fxtun installation
@@ -49,7 +46,7 @@ show_header() {
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}🔥  CODINGBOYZ PRESENTS  ${WHITE}🔥${NC}                  ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
-    echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}⚡ PORT FORWARDING MASTER TOOL ⚡${NC}                 ${WHITE}║${NC}"
+    echo -e "${WHITE}║${NC}           ${BOLD}${BLACK}⚡ PORT FORWARDING MASTER TOOL v1 ⚡${NC}                 ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}              ${BLACK}Power by FXTUN - Professional Tunneling${NC}            ${WHITE}║${NC}"
     echo -e "${WHITE}║${NC}                                                                            ${WHITE}║${NC}"
@@ -102,6 +99,10 @@ install_fxtun() {
             echo -e "${WHITE}► Version:${NC} $(fxtunnel version 2>/dev/null || echo 'Installed')"
             echo -e "${WHITE}► Binary:${NC} ~/.local/bin/fxtunnel"
             echo -e "${WHITE}► Symlink:${NC} ~/.local/bin/fxtun"
+            echo -e "\n${WHITE}► Usage examples:${NC}"
+            echo -e "  ${DIM}fxtunnel http 8080${NC}"
+            echo -e "  ${DIM}fxtunnel tcp 22${NC}"
+            echo -e "  ${DIM}fxtunnel udp 53${NC}"
         fi
     else
         echo -e "\n${BOLD}${RED}❌ INSTALLATION FAILED!${NC}"
@@ -138,7 +139,7 @@ authenticate() {
     return_home
 }
 
-# Function to start tunneling
+# Function to start tunneling with CORRECT syntax
 start_tunneling() {
     clear
     show_header
@@ -164,14 +165,22 @@ start_tunneling() {
     echo -e "${BOLD}${BLACK}║           🚀 START TUNNELING / FORWARDING 🚀                    ║${NC}"
     echo -e "${BOLD}${BLACK}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
     
+    # Show examples
+    echo -e "${DIM}${WHITE}► Command format:${NC} ${BOLD}$CMD <protocol> <port>${NC}"
+    echo -e "${DIM}${WHITE}► Examples:${NC}"
+    echo -e "  ${DIM}$CMD http 8080${NC}"
+    echo -e "  ${DIM}$CMD tcp 22${NC}"
+    echo -e "  ${DIM}$CMD udp 53${NC}"
+    echo -e "  ${DIM}$CMD http 3000 --subdomain api${NC}\n"
+    
     # Protocol selection
     echo -e "${BOLD}${WHITE}┌─────────────────────────────────────────────────────┐${NC}"
     echo -e "${BOLD}${WHITE}│           SELECT PROTOCOL TYPE                      │${NC}"
     echo -e "${BOLD}${WHITE}├─────────────────────────────────────────────────────┤${NC}"
     echo -e "${BOLD}${WHITE}│                                                     │${NC}"
-    echo -e "${BOLD}${WHITE}│    ${WHITE}[${BLACK}1${WHITE}]${NC}  ${BLACK}TCP${NC}  - Transmission Control Protocol      ${BOLD}${WHITE}│${NC}"
-    echo -e "${BOLD}${WHITE}│    ${WHITE}[${BLACK}2${WHITE}]${NC}  ${BLACK}UDP${NC}  - User Datagram Protocol             ${BOLD}${WHITE}│${NC}"
-    echo -e "${BOLD}${WHITE}│    ${WHITE}[${BLACK}3${WHITE}]${NC}  ${BLACK}HTTPS${NC} - HTTP Secure / SSL/TLS             ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│    ${WHITE}[${BLACK}1${WHITE}]${NC}  ${BLACK}HTTP${NC}  - Web Server / API Tunneling        ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│    ${WHITE}[${BLACK}2${WHITE}]${NC}  ${BLACK}TCP${NC}   - Transmission Control Protocol    ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│    ${WHITE}[${BLACK}3${WHITE}]${NC}  ${BLACK}UDP${NC}   - User Datagram Protocol           ${BOLD}${WHITE}│${NC}"
     echo -e "${BOLD}${WHITE}│                                                     │${NC}"
     echo -e "${BOLD}${WHITE}└─────────────────────────────────────────────────────┘${NC}\n"
     
@@ -185,7 +194,9 @@ start_tunneling() {
     echo -e "${BOLD}${WHITE}├─────────────────────────────────────────────────────┤${NC}"
     echo -e "${BOLD}${WHITE}│                                                     │${NC}"
     echo -e "${BOLD}${WHITE}│    ${DIM}► Port range: 1-65535${NC}                       ${BOLD}${WHITE}│${NC}"
-    echo -e "${BOLD}${WHITE}│    ${DIM}► Common ports: 80, 443, 8080, 8443${NC}          ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│    ${DIM}► HTTP common: 80, 3000, 8080, 8443${NC}        ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│    ${DIM}► TCP common: 22, 3306, 5432, 6379${NC}         ${BOLD}${WHITE}│${NC}"
+    echo -e "${BOLD}${WHITE}│    ${DIM}► UDP common: 53, 1194, 51820${NC}              ${BOLD}${WHITE}│${NC}"
     echo -e "${BOLD}${WHITE}│                                                     │${NC}"
     echo -e "${BOLD}${WHITE}└─────────────────────────────────────────────────────┘${NC}\n"
     
@@ -201,11 +212,32 @@ start_tunneling() {
         return
     fi
     
-    # Protocol name
+    # Ask for subdomain (only for HTTP)
+    SUBDOMAIN=""
+    if [ "$proto" = "1" ]; then
+        echo -e "\n${WHITE}► Enter subdomain (optional, press Enter to skip):${NC}"
+        echo -e "${BOLD}${BLACK}┌─[ Subdomain ]${NC}"
+        echo -e "${BOLD}${BLACK}└──╼ ${NC}\c"
+        read -r subdomain_input
+        if [ -n "$subdomain_input" ]; then
+            SUBDOMAIN="--subdomain $subdomain_input"
+        fi
+    fi
+    
+    # Set protocol name and command
     case $proto in
-    1) PROTO_NAME="TCP" ;;
-    2) PROTO_NAME="UDP" ;;
-    3) PROTO_NAME="HTTPS" ;;
+    1) 
+        PROTO_NAME="HTTP"
+        PROTO_CMD="http"
+        ;;
+    2) 
+        PROTO_NAME="TCP"
+        PROTO_CMD="tcp"
+        ;;
+    3) 
+        PROTO_NAME="UDP"
+        PROTO_CMD="udp"
+        ;;
     *) 
         echo -e "\n${BOLD}${RED}❌ INVALID PROTOCOL!${NC}"
         return_home
@@ -213,49 +245,43 @@ start_tunneling() {
         ;;
     esac
     
+    # Build the command
+    if [ -n "$SUBDOMAIN" ]; then
+        FULL_CMD="$CMD $PROTO_CMD $port $SUBDOMAIN"
+    else
+        FULL_CMD="$CMD $PROTO_CMD $port"
+    fi
+    
     # Show summary
     echo -e "\n${BOLD}${WHITE}╔═══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${BOLD}${WHITE}║           📋 TUNNEL CONFIGURATION SUMMARY 📋                   ║${NC}"
     echo -e "${BOLD}${WHITE}╚═══════════════════════════════════════════════════════════════╝${NC}"
     echo -e "${WHITE}► Protocol:${NC}     ${BOLD}${BLACK}$PROTO_NAME${NC}"
     echo -e "${WHITE}► Port:${NC}         ${BOLD}${BLACK}$port${NC}"
+    [ -n "$subdomain_input" ] && echo -e "${WHITE}► Subdomain:${NC}   ${BOLD}${BLACK}$subdomain_input${NC}"
     echo -e "${WHITE}► API Key:${NC}      ${BOLD}${BLACK}${API_KEY:0:10}...${NC}"
-    echo -e "${WHITE}► Command:${NC}      ${BOLD}${BLACK}$CMD${NC}\n"
+    echo -e "${WHITE}► Command:${NC}      ${BOLD}${BLACK}$FULL_CMD${NC}\n"
     
-    # Start tunneling
+    # Export API key for fxtunnel
+    export FXTUNNEL_API_KEY="$API_KEY"
+    
+    # Start tunneling with CORRECT syntax
     echo -e "${BOLD}${GREEN}🚀 STARTING TUNNEL...${NC}\n"
     echo -e "${DIM}${WHITE}Press Ctrl+C to stop the tunnel${NC}\n"
+    echo -e "${YELLOW}► Running: $FULL_CMD${NC}\n"
     
-    # Try different command formats
-    case $proto in
-    1)
-        # TCP
-        $CMD tunnel tcp --port "$port" --key "$API_KEY" 2>/dev/null || \
-        $CMD tcp --port "$port" --key "$API_KEY" 2>/dev/null || \
-        $CMD --port "$port" --key "$API_KEY" 2>/dev/null || \
-        $CMD tcp "$port" "$API_KEY" 2>/dev/null || \
-        $CMD "$port" "$API_KEY" 2>/dev/null || \
-        echo -e "${RED}❌ Failed to start tunnel. Please check fxtun documentation.${NC}"
-        ;;
-    2)
-        # UDP
-        $CMD tunnel udp --port "$port" --key "$API_KEY" 2>/dev/null || \
-        $CMD udp --port "$port" --key "$API_KEY" 2>/dev/null || \
-        $CMD --port "$port" --key "$API_KEY" 2>/dev/null || \
-        $CMD udp "$port" "$API_KEY" 2>/dev/null || \
-        $CMD "$port" "$API_KEY" 2>/dev/null || \
-        echo -e "${RED}❌ Failed to start tunnel. Please check fxtun documentation.${NC}"
-        ;;
-    3)
-        # HTTPS
-        $CMD tunnel https --port "$port" --key "$API_KEY" 2>/dev/null || \
-        $CMD https --port "$port" --key "$API_KEY" 2>/dev/null || \
-        $CMD --port "$port" --key "$API_KEY" 2>/dev/null || \
-        $CMD https "$port" "$API_KEY" 2>/dev/null || \
-        $CMD "$port" "$API_KEY" 2>/dev/null || \
-        echo -e "${RED}❌ Failed to start tunnel. Please check fxtun documentation.${NC}"
-        ;;
-    esac
+    # Execute the command
+    eval "$FULL_CMD"
+    
+    # If command fails, try with API key flag
+    if [ $? -ne 0 ]; then
+        echo -e "\n${YELLOW}► Trying with API key flag...${NC}\n"
+        if [ -n "$SUBDOMAIN" ]; then
+            eval "$CMD $PROTO_CMD $port $SUBDOMAIN --key $API_KEY"
+        else
+            eval "$CMD $PROTO_CMD $port --key $API_KEY"
+        fi
+    fi
     
     return_home
 }
